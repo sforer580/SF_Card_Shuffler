@@ -18,10 +18,10 @@
 #include <cassert>
 #include <ctime>
 
-#include "Shuffler.hpp"
-#include "Deck.hpp"
-#include "Card.hpp"
 #include "Parameters.hpp"
+#include "Card.hpp"
+#include "Deck.hpp"
+#include "Shuffler.hpp"
 
 
 int main()
@@ -29,5 +29,5 @@ int main()
     Parameters P;
     Shuffler S;
     S.pP = &P;
-    S.Build_Deck();
+    S.Run_Shuffler();
 }

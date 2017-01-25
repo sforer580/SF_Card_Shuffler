@@ -36,6 +36,7 @@ protected:
     
 public:
     int num_cards = 52;
+    int num_shuffle = 1;
     
 private:
 };

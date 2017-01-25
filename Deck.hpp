@@ -35,7 +35,7 @@ protected:
     
     
 public:
-    
+    vector<Card> indv;
     
 private:
 };
