@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <cassert>
 #include <ctime>
+#include <random>
 
 
 using namespace std;
@@ -35,8 +36,13 @@ protected:
     
     
 public:
-    int num_cards = 52;
-    int num_shuffle = 1;
+    int num_cards = 52;         //number of cards in deck
+    int num_shuffle = 1;        //number of times deck is shuffled
+    
+    int RS = 0;             //0=off, 1=on       Random Shuffle
+    int RSB = 0;            //0=off, 1=on       Random Swap Bad
+    int RSG = 0;            //0=off, 1=on       Random Swap Good
+    int BS = 1;             //0=off, 1=on       Bridge Shuffle
     
 private:
 };

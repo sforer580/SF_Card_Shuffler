@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <cassert>
 #include <ctime>
+#include <random>
 
 
 using namespace std;
@@ -37,6 +38,7 @@ protected:
 public:
     int card_num;   //Ace=1, Jack=11, Queen=12, King=13
     int suit;       //Heart=0, Diamond=1, Spade=2, Club=3
+    int selected;
     
 private:
 };

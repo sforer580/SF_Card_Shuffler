@@ -17,6 +17,7 @@
 #include <iomanip>
 #include <cassert>
 #include <ctime>
+#include <random>
 
 #include "Parameters.hpp"
 #include "Card.hpp"
@@ -26,6 +27,7 @@
 
 int main()
 {
+    srand(time(NULL));
     Parameters P;
     Shuffler S;
     S.pP = &P;
