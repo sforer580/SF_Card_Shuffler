@@ -45,6 +45,10 @@ public:
     void Random_Swap_Bad();
     void Random_Swap_Good();
     void Bridge_Shuffle();
+    void Check_Num_Cards();
+    void Test_A();
+    void Test_B();
+    void Run_Test_Functions();
     void Shuffle();
     void Run_Shuffler();
     void Display_Deck(int s);
@@ -61,23 +65,36 @@ private:
 //Builds population of individuals
 void Shuffler::Build_Deck()
 {
-    Deck D;
-    stack.push_back(D);
-    int i = 0;
-    for (int c=1; c<pP->num_cards/4+1; c++)
+    for (int d=0; d<pP->num_decks; d++)
     {
-        //number of suites
-        for (int s=0; s<4; s++)
+        Deck D;
+        stack.push_back(D);
+        int i = 0;
+        for (int c=1; c<pP->num_cards/4+1; c++)
         {
-            Card C;
-            stack.at(0).indv.push_back(C);
-            stack.at(0).indv.at(i).card_num = c;
-            stack.at(0).indv.at(i).suit = s;
-            stack.at(0).indv.at(i).selected = 0;
-            i += 1;
+            //number of suites
+            for (int s=0; s<4; s++)
+            {
+                Card C;
+                stack.at(d).indv.push_back(C);
+                stack.at(d).indv.at(i).card_num = c;
+                stack.at(d).indv.at(i).suit = s;
+                stack.at(d).indv.at(i).selected = 0;
+                i += 1;
+            }
         }
     }
-    assert(stack.at(0).indv.size() == pP->num_cards);
+    //combines multiple decks together
+    if (pP->num_decks>1)
+    {
+        for (int d=1; d<pP->num_decks; d++)
+        {
+            for (int i=0; i<pP->num_cards; i++)
+            {
+                stack.at(0).indv.push_back(stack.at(d).indv.at(i));
+            }
+        }
+    }
 }
 
 
@@ -89,13 +106,15 @@ void Shuffler::Random_Shuffle()
     random_shuffle (stack.at(0).indv.begin(), stack.at(0).indv.end());
 }
 
+
 //-------------------------------------------------------------------------
 //Randomly swaps cards in deck (same card can be swapped multiple times)
 void Shuffler::Random_Swap_Bad()
 {
     //more random shuffler
-    for (int i=0; i<pP->num_cards; i++) {
-        int r = i + rand() % (pP->num_cards - i); // careful here!
+    for (int i=0; i<stack.at(0).indv.size(); i++)
+    {
+        int r = i + rand() % (stack.at(0).indv.size() - i);
         swap(stack.at(0).indv.at(i), stack.at(0).indv.at(r));
     }
 }
@@ -106,31 +125,32 @@ void Shuffler::Random_Swap_Bad()
 void Shuffler::Random_Swap_Good()
 {
     //better random shuffler
-    for (int i=0; i<pP->num_cards/2; i++)
+    for (int i=0; i<stack.at(0).indv.size()/2; i++)
     {
-        int r1 = rand() % pP->num_cards;
+        int r1 = rand() % stack.at(0).indv.size();
         //cout << r1 << endl;
         while (stack.at(0).indv.at(r1).selected != 0)
         {
             //cout << r1 << endl;
-            r1 = rand() % pP->num_cards;
+            r1 = rand() % stack.at(0).indv.size();
             //cout << r1 << endl;
         }
         stack.at(0).indv.at(r1).selected = 1;
-        int r2 = (int)rand() % pP->num_cards;
+        int r2 = (int)rand() % stack.at(0).indv.size();
         while (r2 == r1)
         {
-            r2 = (int)rand() % pP->num_cards;
+            r2 = (int)rand() % stack.at(0).indv.size();
             while (stack.at(0).indv.at(r2).selected != 0)
             {
                 //cout << r2 << endl;
-                r2 = rand() % pP->num_cards;
+                r2 = rand() % stack.at(0).indv.size();
                 //cout << r2 << endl;
             }
         }
         swap(stack.at(0).indv.at(r1), stack.at(0).indv.at(r2));
     }
-    for (int i=0; i<pP->num_cards; i++)
+    //resets selection identifier
+    for (int i=0; i<stack.at(0).indv.size(); i++)
     {
         stack.at(0).indv.at(i).selected = 0;
     }
@@ -143,26 +163,114 @@ void Shuffler::Bridge_Shuffle()
 {
     vector<Card> T1;
     vector<Card> T2;
-    for (int i=0; i<pP->num_cards/2; i++)
+    for (int i=0; i<stack.at(0).indv.size()/2; i++)
     {
         T1.push_back(stack.at(0).indv.at(i));
-        T2.push_back(stack.at(0).indv.at(i+pP->num_cards/2));
+        T2.push_back(stack.at(0).indv.at(i+stack.at(0).indv.size()/2));
     }
     int c= 0;
     stack.at(0).indv.clear();
-    for (int i=0; i<pP->num_cards/2; i++)
+    for (int i=0; i<pP->num_decks*pP->num_cards/2; i++)
     {
         if (c % 2 == 0)
         {
-            stack.at(0).indv.push_back(T1.at(pP->num_cards/2-(i+1)));
+            stack.at(0).indv.push_back(T1.at(pP->num_decks*pP->num_cards/2-(i+1)));
         }
         c += 1;
         if (c % 2 != 0)
         {
-            stack.at(0).indv.push_back(T2.at(pP->num_cards/2-(i+1)));
+            stack.at(0).indv.push_back(T2.at(pP->num_decks*pP->num_cards/2-(i+1)));
         }
         c += 1;
     }
+    T1.clear();
+    T2.clear();
+}
+
+
+//-------------------------------------------------------------------------
+//Checks the amount of cards for each deck
+void Shuffler::Check_Num_Cards()
+{
+    for (int d=0; d<pP->num_decks; d++)
+    {
+        assert(stack.at(0).indv.size() == pP->num_cards*pP->num_decks);
+    }
+}
+
+
+//-------------------------------------------------------------------------
+//Checks deck for repeated cards if only one deck
+void Shuffler::Test_A()
+{
+    if (pP->num_decks ==1)
+    {
+        for (int i=0; i<stack.at(0).indv.size(); i++)
+        {
+            for (int j=0; j<stack.at(0).indv.size(); j++)
+            {
+                if (i != j)
+                {
+                    int c = 0;
+                    if (stack.at(0).indv.at(i).card_num == stack.at(0).indv.at(j).card_num)
+                    {
+                        if (stack.at(0).indv.at(i).suit == stack.at(0).indv.at(j).suit)
+                        {
+                            c = 1;
+                            assert(c == 0);     //checks if the same card exists twice in the same deck
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+//-------------------------------------------------------------------------
+//Checks that card multiplicity is equal to the number of decks
+void Shuffler::Test_B()
+{
+    if (pP->num_decks>1)
+    {
+        for (int i=0; i<pP->num_cards; i++)
+        {
+            if (stack.at(0).indv.at(i).selected == 0)
+            {
+                int c = 0;
+                for (int j=0; j<pP->num_decks*pP->num_cards; j++)
+                {
+                    if (stack.at(0).indv.at(i).card_num == stack.at(0).indv.at(j).card_num)
+                    {
+                        if (stack.at(0).indv.at(i).suit == stack.at(0).indv.at(j).suit)
+                        {
+                            if (stack.at(0).indv.at(j).selected == 0)
+                            {
+                                c += 1;
+                            }
+                        }
+                    }
+                }
+                assert (c == pP->num_decks);
+            }
+        }
+        //resets selection identifier
+        for (int i=0; i<stack.at(0).indv.size(); i++)
+        {
+            stack.at(0).indv.at(i).selected = 0;
+        }
+    }
+}
+
+
+
+//-------------------------------------------------------------------------
+//Runs all the test functions
+void Shuffler::Run_Test_Functions()
+{
+    Check_Num_Cards();
+    Test_A();
+    Test_B();
 }
 
 
@@ -186,7 +294,6 @@ void Shuffler::Shuffle()
     {
         Bridge_Shuffle();
     }
-    assert(stack.at(0).indv.size() == pP->num_cards);
 }
 
 
@@ -203,8 +310,9 @@ void Shuffler::Display_Deck(int s)
     {
         cout << "Shuffle" << "\t" << s << endl;
     }
+    cout << endl;
     cout << "Card" << "\t" << "Suit" << endl;
-    for (int i=0; i<pP->num_cards; i++)
+    for (int i=0; i<pP->num_decks*pP->num_cards; i++)
     {
         if (stack.at(0).indv.at(i).card_num == 1)
         {
@@ -263,10 +371,12 @@ void Shuffler::Run_Shuffler()
 {
     int s = 0;
     Build_Deck();
+    Run_Test_Functions();
     Display_Deck(s);
     for (int s=1; s<pP->num_shuffle+1; s++)
     {
         Shuffle();
+        Run_Test_Functions();
         Display_Deck(s);
     }
 }

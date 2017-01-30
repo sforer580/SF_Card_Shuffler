@@ -36,6 +36,7 @@ protected:
     
     
 public:
+    int num_decks = 2;          //number of decks
     int num_cards = 52;         //number of cards in deck
     int num_shuffle = 1;        //number of times deck is shuffled
     
