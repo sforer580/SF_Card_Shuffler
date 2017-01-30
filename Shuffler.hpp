@@ -52,6 +52,7 @@ public:
     void Shuffle();
     void Run_Shuffler();
     void Display_Deck(int s);
+    void Write_Deck_To_File(int s);
     
     
 private:
@@ -298,19 +299,129 @@ void Shuffler::Shuffle()
 
 
 //-------------------------------------------------------------------------
+//writes the deck to a txt file
+void Shuffler::Write_Deck_To_File(int s)
+{
+    ofstream File1;
+    File1.open("Deck.txt", ios_base::app);
+    if (s == 0)
+    {
+        File1 << "Number of Decks" << "\t" << "\t" <<pP->num_decks << endl;
+        File1 << "Number of Shuffles" << "\t" << pP->num_shuffle << endl;
+        File1 << "Type of Shuffle:" << "\t";
+        if (pP->RS ==1)
+        {
+            File1 << "Random Shuffle Fucntion" << endl;
+        }
+        if (pP->RSB ==1)
+        {
+            File1 << "Bad Random Shuffle" << endl;
+        }
+        if (pP->RSG ==1)
+        {
+            File1 << "Good Random Shuffle" << endl;
+        }
+        if (pP->BS ==1)
+        {
+            File1 << "Bridge Shuffle" << endl;
+        }
+        File1 << endl;
+        File1 << "------------------------------------------------------" << endl;
+        File1 << "Initial Order" << endl;
+    }
+    else
+    {
+        File1 << "------------------------------------------------------" << endl;
+        File1 << "Shuffle" << "\t" << s << endl;
+    }
+    File1 << "Card" << "\t" << "Suit" << endl;
+    for (int i=0; i<pP->num_decks*pP->num_cards; i++)
+    {
+        if (stack.at(0).indv.at(i).card_num == 1)
+        {
+            File1 << "Ace" << "\t";
+        }
+        if (stack.at(0).indv.at(i).card_num == 11)
+        {
+            File1 << "Jack" << "\t";
+        }
+        if (stack.at(0).indv.at(i).card_num == 12)
+        {
+            File1 << "Queen" << "\t";
+        }
+        if (stack.at(0).indv.at(i).card_num == 13)
+        {
+            File1 << "King" << "\t";
+        }
+        if (stack.at(0).indv.at(i).card_num !=1)
+        {
+            if (stack.at(0).indv.at(i).card_num != 11)
+            {
+                if (stack.at(0).indv.at(i).card_num != 12)
+                {
+                    if (stack.at(0).indv.at(i).card_num != 13)
+                    {
+                        File1 << stack.at(0).indv.at(i).card_num << "\t";
+                    }
+                }
+            }
+        }
+        if (stack.at(0).indv.at(i).suit == 0)
+        {
+            File1 << "Heart" << "\t";
+        }
+        if (stack.at(0).indv.at(i).suit == 1)
+        {
+            File1 << "Diamond" << "\t";
+        }
+        if (stack.at(0).indv.at(i).suit == 2)
+        {
+            File1 << "Spade" << "\t";
+        }
+        if (stack.at(0).indv.at(i).suit == 3)
+        {
+            File1 << "Club" << "\t";
+        }
+        File1 << endl;
+    }
+    File1 << endl;
+    File1.close();
+}
+
+
+//-------------------------------------------------------------------------
 //Outputs deck in order that the cards appear in the vector
 void Shuffler::Display_Deck(int s)
 {
     cout << "------------------------------------------------------" << endl;
     if (s == 0)
     {
-        cout << "Intial Order" << endl;
+        cout << "Number of Decks" << "\t" << "\t" <<pP->num_decks << endl;
+        cout << "Number of Shuffles" << "\t" << pP->num_shuffle << endl;
+        cout << "Type of Shuffle:" << "\t";
+        if (pP->RS ==1)
+        {
+            cout << "Random Shuffle Fucntion" << endl;
+        }
+        if (pP->RSB ==1)
+        {
+            cout << "Bad Random Shuffle" << endl;
+        }
+        if (pP->RSG ==1)
+        {
+            cout << "Good Random Shuffle" << endl;
+        }
+        if (pP->BS ==1)
+        {
+            cout << "Bridge Shuffle" << endl;
+        }
+        cout << endl;
+        cout << "Initial Order" << endl;
     }
     else
     {
         cout << "Shuffle" << "\t" << s << endl;
     }
-    cout << endl;
     cout << "Card" << "\t" << "Suit" << endl;
     for (int i=0; i<pP->num_decks*pP->num_cards; i++)
     {
@@ -373,11 +484,13 @@ void Shuffler::Run_Shuffler()
     Build_Deck();
     Run_Test_Functions();
     Display_Deck(s);
+    Write_Deck_To_File(s);
     for (int s=1; s<pP->num_shuffle+1; s++)
     {
         Shuffle();
         Run_Test_Functions();
         Display_Deck(s);
+        Write_Deck_To_File(s);
     }
 }
 
