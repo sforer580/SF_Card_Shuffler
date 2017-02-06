@@ -204,7 +204,7 @@ void Shuffler::Check_Num_Cards()
 //Checks deck for repeated cards if only one deck
 void Shuffler::Test_A()
 {
-    if (pP->num_decks ==1)
+    if (pP->num_decks == 1)
     {
         for (int i=0; i<stack.at(0).indv.size(); i++)
         {
@@ -218,9 +218,9 @@ void Shuffler::Test_A()
                         if (stack.at(0).indv.at(i).suit == stack.at(0).indv.at(j).suit)
                         {
                             c = 1;
-                            assert(c == 0);     //checks if the same card exists twice in the same deck
                         }
                     }
+                    assert(c == 0);     //checks if the same card exists twice in the same deck
                 }
             }
         }
@@ -238,16 +238,23 @@ void Shuffler::Test_B()
         {
             if (stack.at(0).indv.at(i).selected == 0)
             {
-                int c = 0;
+                stack.at(0).indv.at(i).selected = 1;
+                int c = 1;
                 for (int j=0; j<pP->num_decks*pP->num_cards; j++)
                 {
-                    if (stack.at(0).indv.at(i).card_num == stack.at(0).indv.at(j).card_num)
+                    if (i != j)
                     {
-                        if (stack.at(0).indv.at(i).suit == stack.at(0).indv.at(j).suit)
+                        if (stack.at(0).indv.at(i).card_num == stack.at(0).indv.at(j).card_num)
                         {
-                            if (stack.at(0).indv.at(j).selected == 0)
+                            if (stack.at(0).indv.at(i).suit == stack.at(0).indv.at(j).suit)
                             {
-                                c += 1;
+                                if (stack.at(0).indv.at(j).selected == 0)
+                                {
+                                    //cout << c << endl;
+                                    c = c+1;
+                                    //cout << c << endl;
+                                    stack.at(0).indv.at(j).selected = 1;
+                                }
                             }
                         }
                     }
