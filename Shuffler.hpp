@@ -52,6 +52,7 @@ public:
     void Shuffle();
     void Run_Shuffler();
     void Display_Deck(int s);
+    void Delete_Text_Files();
     void Write_Deck_To_File(int s);
     
     
@@ -71,16 +72,16 @@ void Shuffler::Build_Deck()
         Deck D;
         stack.push_back(D);
         int i = 0;
-        for (int c=1; c<pP->num_cards/4+1; c++)
+        //number of suites
+        for (int s=0; s<4; s++)
         {
-            //number of suites
-            for (int s=0; s<4; s++)
+            for (int c=1; c<(pP->num_cards/4)+1; c++)
             {
                 Card C;
                 stack.at(d).indv.push_back(C);
                 stack.at(d).indv.at(i).card_num = c;
                 stack.at(d).indv.at(i).suit = s;
-                stack.at(d).indv.at(i).selected = 0;
+                stack.at(d).indv.at(i).selected = false;
                 i += 1;
             }
         }
@@ -130,7 +131,7 @@ void Shuffler::Random_Swap_Good()
     {
         int r1 = rand() % stack.at(0).indv.size();
         //cout << r1 << endl;
-        while (stack.at(0).indv.at(r1).selected != 0)
+        while (stack.at(0).indv.at(r1).selected == true)
         {
             //cout << r1 << endl;
             r1 = rand() % stack.at(0).indv.size();
@@ -141,7 +142,7 @@ void Shuffler::Random_Swap_Good()
         while (r2 == r1)
         {
             r2 = (int)rand() % stack.at(0).indv.size();
-            while (stack.at(0).indv.at(r2).selected != 0)
+            while (stack.at(0).indv.at(r2).selected == true)
             {
                 //cout << r2 << endl;
                 r2 = rand() % stack.at(0).indv.size();
@@ -153,7 +154,7 @@ void Shuffler::Random_Swap_Good()
     //resets selection identifier
     for (int i=0; i<stack.at(0).indv.size(); i++)
     {
-        stack.at(0).indv.at(i).selected = 0;
+        stack.at(0).indv.at(i).selected = false;
     }
 }
 
@@ -163,11 +164,13 @@ void Shuffler::Random_Swap_Good()
 void Shuffler::Bridge_Shuffle()
 {
     vector<Card> T1;
+    T1.resize(pP->num_decks*pP->num_cards/2);
     vector<Card> T2;
+    T2.resize(pP->num_decks*pP->num_cards/2);
     for (int i=0; i<stack.at(0).indv.size()/2; i++)
     {
-        T1.push_back(stack.at(0).indv.at(i));
-        T2.push_back(stack.at(0).indv.at(i+stack.at(0).indv.size()/2));
+        T1.at(i) = (stack.at(0).indv.at(i));
+        T2.at(i) = (stack.at(0).indv.at(i+stack.at(0).indv.size()/2));
     }
     int c= 0;
     stack.at(0).indv.clear();
@@ -175,17 +178,18 @@ void Shuffler::Bridge_Shuffle()
     {
         if (c % 2 == 0)
         {
-            stack.at(0).indv.push_back(T1.at(pP->num_decks*pP->num_cards/2-(i+1)));
+            stack.at(0).indv.push_back(T2.at(pP->num_decks*pP->num_cards/2-(i+1)));
         }
         c += 1;
         if (c % 2 != 0)
         {
-            stack.at(0).indv.push_back(T2.at(pP->num_decks*pP->num_cards/2-(i+1)));
+            stack.at(0).indv.push_back(T1.at(pP->num_decks*pP->num_cards/2-(i+1)));
         }
         c += 1;
     }
     T1.clear();
     T2.clear();
+    reverse(stack.at(0).indv.begin(),stack.at(0).indv.end());
 }
 
 
@@ -193,10 +197,15 @@ void Shuffler::Bridge_Shuffle()
 //Checks the amount of cards for each deck
 void Shuffler::Check_Num_Cards()
 {
-    for (int d=0; d<pP->num_decks; d++)
+    if (stack.at(0).indv.size() > pP->num_cards*pP->num_decks)
     {
-        assert(stack.at(0).indv.size() == pP->num_cards*pP->num_decks);
+        cout << "Too Many Cards" << endl;
     }
+    if (stack.at(0).indv.size() < pP->num_cards*pP->num_decks)
+    {
+        cout << "Too Few Cards" << endl;
+    }
+    assert(stack.at(0).indv.size() == pP->num_cards*pP->num_decks);
 }
 
 
@@ -206,24 +215,25 @@ void Shuffler::Test_A()
 {
     if (pP->num_decks == 1)
     {
+        bool duplicate = false;
         for (int i=0; i<stack.at(0).indv.size(); i++)
         {
             for (int j=0; j<stack.at(0).indv.size(); j++)
             {
                 if (i != j)
                 {
-                    int c = 0;
                     if (stack.at(0).indv.at(i).card_num == stack.at(0).indv.at(j).card_num)
                     {
                         if (stack.at(0).indv.at(i).suit == stack.at(0).indv.at(j).suit)
                         {
-                            c = 1;
+                            duplicate = true;
+                            cout << "Duplicate Cards Exist" << endl;
                         }
                     }
-                    assert(c == 0);     //checks if the same card exists twice in the same deck
                 }
             }
         }
+        assert(duplicate == false);     //checks if the same card exists twice in the same deck
     }
 }
 
@@ -236,10 +246,10 @@ void Shuffler::Test_B()
     {
         for (int i=0; i<pP->num_cards; i++)
         {
-            if (stack.at(0).indv.at(i).selected == 0)
+            if (stack.at(0).indv.at(i).selected == false)
             {
-                stack.at(0).indv.at(i).selected = 1;
-                int c = 1;
+                stack.at(0).indv.at(i).selected = true;
+                int counter = 1;
                 for (int j=0; j<pP->num_decks*pP->num_cards; j++)
                 {
                     if (i != j)
@@ -248,24 +258,22 @@ void Shuffler::Test_B()
                         {
                             if (stack.at(0).indv.at(i).suit == stack.at(0).indv.at(j).suit)
                             {
-                                if (stack.at(0).indv.at(j).selected == 0)
+                                if (stack.at(0).indv.at(j).selected == false)
                                 {
-                                    //cout << c << endl;
-                                    c = c+1;
-                                    //cout << c << endl;
-                                    stack.at(0).indv.at(j).selected = 1;
+                                    stack.at(0).indv.at(j).selected = true;
+                                    counter = counter+1;
                                 }
                             }
                         }
                     }
                 }
-                assert (c == pP->num_decks);
+                assert (counter == pP->num_decks);
             }
         }
         //resets selection identifier
         for (int i=0; i<stack.at(0).indv.size(); i++)
         {
-            stack.at(0).indv.at(i).selected = 0;
+            stack.at(0).indv.at(i).selected = false;
         }
     }
 }
@@ -286,19 +294,19 @@ void Shuffler::Run_Test_Functions()
 //Shuffles deck
 void Shuffler::Shuffle()
 {
-    if (pP->RS == 1)
+    if (pP->RS == true)
     {
         Random_Shuffle();
     }
-    if (pP->RSB == 1)
+    if (pP->RSB == true)
     {
         Random_Swap_Bad();
     }
-    if (pP->RSG == 1)
+    if (pP->RSG == true)
     {
         Random_Swap_Good();
     }
-    if (pP->BS == 1)
+    if (pP->BS == true)
     {
         Bridge_Shuffle();
     }
@@ -316,19 +324,19 @@ void Shuffler::Write_Deck_To_File(int s)
         File1 << "Number of Decks" << "\t" << "\t" <<pP->num_decks << endl;
         File1 << "Number of Shuffles" << "\t" << pP->num_shuffle << endl;
         File1 << "Type of Shuffle:" << "\t";
-        if (pP->RS ==1)
+        if (pP->RS == true)
         {
             File1 << "Random Shuffle Fucntion" << endl;
         }
-        if (pP->RSB ==1)
+        if (pP->RSB == true)
         {
             File1 << "Bad Random Shuffle" << endl;
         }
-        if (pP->RSG ==1)
+        if (pP->RSG == true)
         {
             File1 << "Good Random Shuffle" << endl;
         }
-        if (pP->BS ==1)
+        if (pP->BS == true)
         {
             File1 << "Bridge Shuffle" << endl;
         }
@@ -406,19 +414,19 @@ void Shuffler::Display_Deck(int s)
         cout << "Number of Decks" << "\t" << "\t" <<pP->num_decks << endl;
         cout << "Number of Shuffles" << "\t" << pP->num_shuffle << endl;
         cout << "Type of Shuffle:" << "\t";
-        if (pP->RS ==1)
+        if (pP->RS == true)
         {
             cout << "Random Shuffle Fucntion" << endl;
         }
-        if (pP->RSB ==1)
+        if (pP->RSB == true)
         {
             cout << "Bad Random Shuffle" << endl;
         }
-        if (pP->RSG ==1)
+        if (pP->RSG == true)
         {
             cout << "Good Random Shuffle" << endl;
         }
-        if (pP->BS ==1)
+        if (pP->BS == true)
         {
             cout << "Bridge Shuffle" << endl;
         }
@@ -484,9 +492,23 @@ void Shuffler::Display_Deck(int s)
 
 
 //-------------------------------------------------------------------------
+//Deltes the text files
+void Shuffler::Delete_Text_Files()
+{
+    //
+    if( remove( "Deck.txt" ) != 0 )
+        perror( "ERROR DELETING FILE Deck" );
+    else
+        puts( "Deck FILE SUCCESSFULLY DELETED" );
+    cout << endl;
+}
+
+
+//-------------------------------------------------------------------------
 //Runs the entire card shuffler program
 void Shuffler::Run_Shuffler()
 {
+    Delete_Text_Files();
     int s = 0;
     Build_Deck();
     Run_Test_Functions();

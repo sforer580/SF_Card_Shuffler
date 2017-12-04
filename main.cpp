@@ -1,9 +1,9 @@
 //
 //  main.cpp
-//  SF_Card_Shuffler_Project
+//  Card_Shuffler
 //
-//  Created by Scott S Forer on 1/24/17.
-//  Copyright © 2017 Scott S Forer. All rights reserved.
+//  Created by Scott S Forer on 12/3/17.
+//  Copyright © 2017 Card_Shuffler. All rights reserved.
 //
 
 #include <iostream>
